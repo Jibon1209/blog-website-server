@@ -135,6 +135,18 @@ async function run() {
       const count = await blogCollection.estimatedDocumentCount();
       res.send({ count });
     });
+    app.get("/blogs/:category", async (req, res) => {
+      const category = req.params.category;
+      const query = { category: category };
+      const result = await blogCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/search/blogs/:title", async (req, res) => {
+      const title = req.params.title;
+      const query = { title: { $regex: title } };
+      const result = await blogCollection.find(query).toArray();
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

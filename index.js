@@ -125,7 +125,10 @@ async function run() {
       const result = await blogCollection.insertOne(newBlogs);
       res.send(result);
     });
-
+    app.get("/blogsCount", async (req, res) => {
+      const count = await blogCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

@@ -108,6 +108,8 @@ async function run() {
       res.send(result);
     });
     app.get("/all/blogs", logger, verifyToken, async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
       if (req.query.email !== req.user.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
@@ -117,7 +119,11 @@ async function run() {
           author: req.query.email,
         };
       }
-      const result = await blogCollection.find(query).toArray();
+      const result = await blogCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
     app.post("/blogs", async (req, res) => {

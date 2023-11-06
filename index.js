@@ -175,7 +175,9 @@ async function run() {
 
     //comment api
     app.get("/comments", async (req, res) => {
-      const cursor = commentsCollection.find();
+      const blogId = req.query.blogId;
+      const query = { blogId: blogId };
+      const cursor = commentsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });

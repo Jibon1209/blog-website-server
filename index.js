@@ -102,26 +102,24 @@ async function run() {
     });
 
     //Blogs api
-    app.get("/blogs", logger, async (req, res) => {
-      const cursor = blogCollection.find().sort({ $natural: -1 }).limit(4);
+    app.get("/blogs", async (req, res) => {
+      const cursor = blogCollection.find().sort({ $natural: -1 }).limit(6);
       const result = await cursor.toArray();
       res.send(result);
     });
-    // app.get("/blogs", logger, verifyToken, async (req, res) => {
-    //   if (req.query.email !== req.user.email) {
-    //     return res.status(403).send({ message: "forbidden access" });
-    //   }
-    //   let query = {};
-    //   if (req.query?.email) {
-    //     query = { email: req.query.email };
-    //   }
-    //   const result = await blogCollection
-    //     .find(query)
-    //     .sort({ $natural: -1 })
-    //     .limit(6)
-    //     .toArray();
-    //   res.send(result);
-    // });
+    app.get("/all/blogs", logger, verifyToken, async (req, res) => {
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      let query = {};
+      if (req.query?.email) {
+        query = {
+          author: req.query.email,
+        };
+      }
+      const result = await blogCollection.find(query).toArray();
+      res.send(result);
+    });
     app.post("/blogs", async (req, res) => {
       const newBlogs = req.body;
       const result = await blogCollection.insertOne(newBlogs);

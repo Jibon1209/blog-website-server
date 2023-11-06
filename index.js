@@ -107,6 +107,12 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.get("/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await blogCollection.findOne(query);
+      res.send(result);
+    });
     app.get("/all/blogs", logger, verifyToken, async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
@@ -135,7 +141,7 @@ async function run() {
       const count = await blogCollection.estimatedDocumentCount();
       res.send({ count });
     });
-    app.get("/blogs/:category", async (req, res) => {
+    app.get("/srccategory/blogs/:category", async (req, res) => {
       const category = req.params.category;
       const query = { category: category };
       const result = await blogCollection.find(query).toArray();
@@ -145,6 +151,24 @@ async function run() {
       const title = req.params.title;
       const query = { title: { $regex: title } };
       const result = await blogCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.put("/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updatedBlog = req.body;
+      const Product = {
+        $set: {
+          title: updatedBlog.title,
+          image: updatedBlog.image,
+          category: updatedBlog.category,
+          shortDescription: updatedBlog.shortDescription,
+          longDescription: updatedBlog.longDescription,
+          author: updatedBlog.author,
+        },
+      };
+      const result = await blogCollection.updateOne(filter, Product, option);
       res.send(result);
     });
     // Send a ping to confirm a successful connection

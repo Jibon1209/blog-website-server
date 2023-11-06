@@ -55,6 +55,7 @@ async function run() {
 
     const userCollection = client.db("blogDb").collection("users");
     const blogCollection = client.db("blogDb").collection("blogs");
+    const commentsCollection = client.db("blogDb").collection("comments");
 
     //auth api
     app.post("/jwt", logger, async (req, res) => {
@@ -171,6 +172,19 @@ async function run() {
       const result = await blogCollection.updateOne(filter, Product, option);
       res.send(result);
     });
+
+    //comment api
+    app.get("/comments", async (req, res) => {
+      const cursor = commentsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.post("/comments", async (req, res) => {
+      const newComment = req.body;
+      const result = await commentsCollection.insertOne(newComment);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

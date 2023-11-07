@@ -133,6 +133,22 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    app.get("/api/all/blogs", async (req, res) => {
+      const result = await blogCollection
+        .aggregate([
+          {
+            $lookup: {
+              from: "users",
+              localField: "author",
+              foreignField: "email",
+              as: "authorInfo",
+            },
+          },
+        ])
+        .toArray();
+      res.send(result);
+    });
+
     app.post("/blogs", async (req, res) => {
       const newBlogs = req.body;
       const result = await blogCollection.insertOne(newBlogs);
@@ -177,7 +193,7 @@ async function run() {
     app.get("/comments", async (req, res) => {
       const blogId = req.query.blogId;
       const query = { blogId: blogId };
-      const cursor = commentsCollection.find(query);
+      const cursor = commentsCollection.find(query).sort({ $natural: -1 });
       const result = await cursor.toArray();
       res.send(result);
     });

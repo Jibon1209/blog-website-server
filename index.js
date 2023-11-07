@@ -56,6 +56,7 @@ async function run() {
     const userCollection = client.db("blogDb").collection("users");
     const blogCollection = client.db("blogDb").collection("blogs");
     const commentsCollection = client.db("blogDb").collection("comments");
+    const wishlistCollection = client.db("blogDb").collection("wishlists");
 
     //auth api
     app.post("/jwt", logger, async (req, res) => {
@@ -78,7 +79,7 @@ async function run() {
     });
 
     // user api
-    app.get("/users", async (req, res) => {
+    app.get("/users", logger, verifyToken, async (req, res) => {
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -203,6 +204,48 @@ async function run() {
       res.send(result);
     });
 
+    //wishlist api
+
+    app.get("/wishlists", async (req, res) => {
+      const userEmail = req.query.email;
+      const result = await wishlistCollection
+        .aggregate([
+          {
+            $match: {
+              userEmail: userEmail,
+            },
+          },
+          {
+            $lookup: {
+              from: "blogs",
+              let: { blogIdString: "$blogId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$_id", { $toObjectId: "$$blogIdString" }],
+                    },
+                  },
+                },
+              ],
+              as: "blogsInfo",
+            },
+          },
+        ])
+        .toArray();
+      res.send(result);
+    });
+    app.post("/wishlists", async (req, res) => {
+      const newWishlist = req.body;
+      const result = await wishlistCollection.insertOne(newWishlist);
+      res.send(result);
+    });
+    app.delete("/wishlists/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await wishlistCollection.deleteOne(query);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

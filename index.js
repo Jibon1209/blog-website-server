@@ -70,6 +70,7 @@ async function run() {
         .cookie("token", token, {
           httpOnly: true,
           secure: true,
+          sameSite: "none",
           domain: "localhost",
         })
         .send({ success: true });

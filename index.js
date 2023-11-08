@@ -206,8 +206,11 @@ async function run() {
 
     //wishlist api
 
-    app.get("/wishlists", async (req, res) => {
+    app.get("/wishlists", logger, verifyToken, async (req, res) => {
       const userEmail = req.query.email;
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       const result = await wishlistCollection
         .aggregate([
           {

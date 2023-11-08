@@ -10,7 +10,11 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(
   cors({
-    origin: ["https://blog-website-client.web.app", "http://localhost:5173"],
+    origin: [
+      "https://blog-website-client.web.app",
+      "https://blog-website-client.web.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -69,7 +73,7 @@ async function run() {
       res
         .cookie("token", token, {
           httpOnly: true,
-          secure: true,
+          secure: false,
         })
         .send({ success: true });
     });

@@ -79,7 +79,7 @@ async function run() {
     });
 
     // user api
-    app.get("/users", logger, verifyToken, async (req, res) => {
+    app.get("/users", async (req, res) => {
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -115,7 +115,7 @@ async function run() {
       const result = await blogCollection.findOne(query);
       res.send(result);
     });
-    app.get("/all/blogs", logger, verifyToken, async (req, res) => {
+    app.get("/all/blogs", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
       if (req.query.email !== req.user.email) {
@@ -206,7 +206,7 @@ async function run() {
 
     //wishlist api
 
-    app.get("/wishlists", logger, verifyToken, async (req, res) => {
+    app.get("/wishlists", async (req, res) => {
       const userEmail = req.query.email;
       if (req.query.email !== req.user.email) {
         return res.status(403).send({ message: "forbidden access" });

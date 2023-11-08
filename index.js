@@ -5,16 +5,12 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 require("dotenv").config();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 
 //middleware
 app.use(
   cors({
-    origin: [
-      "https://blog-website-client.web.app",
-      "https://blog-website-client.web.app",
-      "http://localhost:5173",
-    ],
+    origin: ["https://blog-website-client.web.app", "http://localhost:5173"],
     credentials: true,
   })
 );
@@ -83,7 +79,7 @@ async function run() {
     });
 
     // user api
-    app.get("/users", async (req, res) => {
+    app.get("/users", logger, verifyToken, async (req, res) => {
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -119,9 +115,12 @@ async function run() {
       const result = await blogCollection.findOne(query);
       res.send(result);
     });
-    app.get("/all/blogs", async (req, res) => {
+    app.get("/all/blogs", logger, verifyToken, async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       let query = {};
       if (req.query?.email) {
         query = {
@@ -207,9 +206,11 @@ async function run() {
 
     //wishlist api
 
-    app.get("/wishlists", async (req, res) => {
+    app.get("/wishlists", logger, verifyToken, async (req, res) => {
       const userEmail = req.query.email;
-
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       const result = await wishlistCollection
         .aggregate([
           {

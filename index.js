@@ -71,7 +71,6 @@ async function run() {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: "localhost",
         })
         .send({ success: true });
     });

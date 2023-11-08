@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 require("dotenv").config();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 
 //middleware
 app.use(
@@ -209,9 +209,7 @@ async function run() {
 
     app.get("/wishlists", async (req, res) => {
       const userEmail = req.query.email;
-      if (req.query.email !== req.user.email) {
-        return res.status(403).send({ message: "forbidden access" });
-      }
+
       const result = await wishlistCollection
         .aggregate([
           {
